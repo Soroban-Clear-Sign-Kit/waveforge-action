@@ -30,6 +30,29 @@ describe("action.yml", () => {
     const mainPath = resolve(import.meta.dirname, "..", mainFile);
     expect(existsSync(mainPath)).toBe(true);
   });
+
+  it("declares all required inputs with defaults", () => {
+    const inputs = action["inputs"] as Record<string, Record<string, unknown>>;
+    expect(inputs).toBeDefined();
+
+    expect(inputs["mode"]?.["default"]).toBe("issue");
+    expect(inputs["min-score"]?.["default"]).toBe("70");
+    expect(inputs["network"]?.["default"]).toBe("testnet");
+    expect(inputs["rpc-url"]).toBeDefined();
+    expect(inputs["offline"]?.["default"]).toBe("false");
+    expect(inputs["comment"]?.["default"]).toBe("true");
+    expect(inputs["fail-on-low-score"]?.["default"]).toBe("false");
+    expect(inputs["github-token"]?.["default"]).toBe("${{ github.token }}");
+  });
+
+  it("declares all required outputs", () => {
+    const outputs = action["outputs"] as Record<string, Record<string, unknown>>;
+    expect(outputs).toBeDefined();
+
+    expect(outputs["score"]).toBeDefined();
+    expect(outputs["suggested-complexity"]).toBeDefined();
+    expect(outputs["report-json"]).toBeDefined();
+  });
 });
 
 describe("ci.yml", () => {

@@ -3,6 +3,45 @@ description: "Run waveforge readiness checks on repos and issues"
 branding:
   icon: "check-circle"
   color: "blue"
+inputs:
+  mode:
+    description: "Execution mode ('issue' or 'repo')"
+    required: false
+    default: "issue"
+  min-score:
+    description: "Minimum readiness score threshold (0-100)"
+    required: false
+    default: "70"
+  network:
+    description: "Target Stellar network ('testnet' or 'mainnet')"
+    required: false
+    default: "testnet"
+  rpc-url:
+    description: "Explicit Soroban RPC URL (required when targeting mainnet)"
+    required: false
+  offline:
+    description: "Skip network RPC calls and mark network checks as skipped"
+    required: false
+    default: "false"
+  comment:
+    description: "Whether to create or update diagnostic comment on the issue"
+    required: false
+    default: "true"
+  fail-on-low-score:
+    description: "Fail the workflow step if score is below min-score"
+    required: false
+    default: "false"
+  github-token:
+    description: "GitHub token for GitHub API interactions"
+    required: false
+    default: "${{ github.token }}"
+outputs:
+  score:
+    description: "Calculated readiness score"
+  suggested-complexity:
+    description: "Suggested complexity level for the issue"
+  report-json:
+    description: "Full JSON formatted report"
 runs:
   using: "node20"
   main: "dist/index.js"
