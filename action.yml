@@ -1,0 +1,8 @@
+name: "WaveForge"
+description: "Run waveforge readiness checks on repos and issues"
+branding:
+  icon: "check-circle"
+  color: "blue"
+runs:
+  using: "node20"
+  main: "dist/index.js"
