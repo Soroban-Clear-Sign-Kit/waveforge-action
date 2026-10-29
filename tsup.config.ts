@@ -9,6 +9,7 @@ export default defineConfig({
   noExternal: [/.*/],
   clean: true,
   dts: false,
+  splitting: false,
   banner: {
     js: `import { createRequire } from "node:module"; const require = createRequire(import.meta.url);`,
   },
