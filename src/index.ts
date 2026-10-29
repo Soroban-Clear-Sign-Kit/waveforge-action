@@ -1,9 +1,7 @@
 import * as core from "@actions/core";
+import * as github from "@actions/github";
 import { readInputs, type ActionInputs } from "./inputs.js";
-
-export async function runIssueMode(inputs: ActionInputs): Promise<void> {
-  core.info(`Running issue mode (min-score: ${inputs.minScore})`);
-}
+import { runIssueMode } from "./issue-mode.js";
 
 export async function runRepoMode(inputs: ActionInputs): Promise<void> {
   core.info(`Running repo mode (network: ${inputs.network})`);
@@ -18,7 +16,13 @@ export async function run(): Promise<void> {
   core.info("waveforge-action ready");
 
   if (inputs.mode === "issue") {
-    await runIssueMode(inputs);
+    const octokit = inputs.githubToken
+      ? github.getOctokit(inputs.githubToken)
+      : undefined;
+    await runIssueMode(
+      inputs,
+      octokit ? { core, context: github.context, octokit } : undefined,
+    );
   } else {
     await runRepoMode(inputs);
   }
