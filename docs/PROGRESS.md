@@ -24,3 +24,13 @@
   - `pnpm test`: vitest passed 4/4 tests verifying action.yml (success)
   - `node dist/index.js`: executed bundle and logged "waveforge-action ready" (success)
 - **Open issues**: None
+
+## 2026-10-29 · Step 03
+- **What was built**: Configured GitHub Actions CI workflow in `.github/workflows/ci.yml` running on pull_request and push to main with checkout, pnpm setup, node 20 with pnpm cache, frozen-lockfile install, lint, typecheck, test, build, and dist diff check. Added tests in `src/action.test.ts` to parse and validate `ci.yml`. Recorded action versions in `VERSIONS.md`.
+- **Commands run with results**:
+  - `pnpm lint`: eslint passed with 0 errors (success)
+  - `pnpm typecheck`: tsc --noEmit passed cleanly (success)
+  - `pnpm test`: vitest passed all tests including ci.yml YAML validation (success)
+  - `pnpm build`: rebuilt dist/index.js (success)
+  - `git diff --exit-code -- dist/`: verified dist is clean and up to date (success)
+- **Open issues**: None

@@ -13,3 +13,6 @@
 | vitest | 5.0.5 | 2026-10-29 |
 | yaml | 2.9.1 | 2026-10-29 |
 | pnpm | 9.15.4 | 2026-10-29 |
+| actions/checkout | 4 | 2026-10-29 |
+| pnpm/action-setup | 4 | 2026-10-29 |
+| actions/setup-node | 4 | 2026-10-29 |
