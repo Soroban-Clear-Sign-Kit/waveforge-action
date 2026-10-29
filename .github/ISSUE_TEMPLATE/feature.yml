@@ -1,0 +1,37 @@
+name: Feature Request
+description: Propose a new feature or enhancement for WaveForge Action
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the problem or use case this feature addresses.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: Describe what solution or implementation you propose.
+    validations:
+      required: true
+  - type: checkboxes
+    id: done-when
+    attributes:
+      label: Done when
+      description: Criteria that must be satisfied for this feature to be considered complete.
+      options:
+        - label: Implementation meets specified requirements and passes tests
+          required: true
+        - label: Documentation and type definitions updated
+          required: true
+    validations:
+      required: true
+  - type: textarea
+    id: files-to-touch
+    attributes:
+      label: Files to touch
+      description: List files or directories likely to be modified.
+    validations:
+      required: false

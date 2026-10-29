@@ -72,3 +72,69 @@ describe("ci.yml", () => {
     expect(stepRuns.some((r) => typeof r === "string" && r.includes("git diff --exit-code -- dist/"))).toBe(true);
   });
 });
+
+describe("issue forms & templates", () => {
+  const templatesDir = resolve(import.meta.dirname, "..", ".github", "ISSUE_TEMPLATE");
+
+  it("parses bug.yml with valid GitHub schema", () => {
+    const raw = readFileSync(resolve(templatesDir, "bug.yml"), "utf8");
+    const bug = parse(raw) as Record<string, unknown>;
+    expect(bug["name"]).toBeTruthy();
+    expect(bug["description"]).toBeTruthy();
+    expect(bug["labels"]).toContain("bug");
+    const body = bug["body"] as Array<Record<string, unknown>>;
+    const ids = body.map((item) => item["id"]);
+    expect(ids).toContain("what-happened");
+    expect(ids).toContain("expected-behaviour");
+    expect(ids).toContain("steps-to-reproduce");
+    expect(ids).toContain("version");
+  });
+
+  it("parses feature.yml with required done-when checklist", () => {
+    const raw = readFileSync(resolve(templatesDir, "feature.yml"), "utf8");
+    const feature = parse(raw) as Record<string, unknown>;
+    expect(feature["name"]).toBeTruthy();
+    expect(feature["description"]).toBeTruthy();
+    expect(feature["labels"]).toContain("enhancement");
+    const body = feature["body"] as Array<Record<string, unknown>>;
+    const ids = body.map((item) => item["id"]);
+    expect(ids).toContain("problem");
+    expect(ids).toContain("proposed-solution");
+    expect(ids).toContain("done-when");
+    expect(ids).toContain("files-to-touch");
+
+    const doneWhen = body.find((item) => item["id"] === "done-when");
+    expect(doneWhen).toBeDefined();
+    expect(doneWhen?.["type"]).toBe("checkboxes");
+    const validations = doneWhen?.["validations"] as Record<string, unknown> | undefined;
+    expect(validations?.["required"]).toBe(true);
+  });
+
+  it("parses spike.yml with required question, investigate, output", () => {
+    const raw = readFileSync(resolve(templatesDir, "spike.yml"), "utf8");
+    const spike = parse(raw) as Record<string, unknown>;
+    expect(spike["name"]).toBeTruthy();
+    expect(spike["description"]).toBeTruthy();
+    expect(spike["labels"]).toContain("spike");
+    const body = spike["body"] as Array<Record<string, unknown>>;
+    const ids = body.map((item) => item["id"]);
+    expect(ids).toContain("question-to-answer");
+    expect(ids).toContain("what-to-investigate");
+    expect(ids).toContain("expected-output");
+  });
+
+  it("parses config.yml with blank_issues_enabled: false", () => {
+    const raw = readFileSync(resolve(templatesDir, "config.yml"), "utf8");
+    const config = parse(raw) as Record<string, unknown>;
+    expect(config["blank_issues_enabled"]).toBe(false);
+  });
+
+  it("PR template exists and contains required sections", () => {
+    const prTemplatePath = resolve(import.meta.dirname, "..", ".github", "pull_request_template.md");
+    const raw = readFileSync(prTemplatePath, "utf8");
+    expect(raw).toContain("Closes #");
+    expect(raw).toContain("Summary");
+    expect(raw).toContain("Test Evidence");
+    expect(raw).toContain("Checklist");
+  });
+});
