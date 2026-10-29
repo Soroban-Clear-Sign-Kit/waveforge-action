@@ -44,3 +44,13 @@
   - `pnpm build`: rebuilt dist/index.js (success)
   - `git diff --exit-code -- dist/`: verified dist bundle unchanged (success)
 - **Open issues**: None
+
+## 2026-10-29 · Step 05
+- **What was built**: Configured `action.yml` with inputs (`mode`, `min-score`, `network`, `rpc-url`, `offline`, `comment`, `fail-on-low-score`, `github-token`) and outputs (`score`, `suggested-complexity`, `report-json`). Implemented `src/inputs.ts` with `readInputs()` using `@actions/core` `getInput` and `getBooleanInput`, validating `min-score` (0..100), `mode` enum, and `network`/`rpc-url` requirements. Updated `src/index.ts` to read inputs and route to stubs for `runIssueMode` and `runRepoMode`. Added unit tests in `src/inputs.test.ts` mocking `@actions/core` to verify defaults and each validation error, and extended `src/action.test.ts` to test `action.yml` inputs and outputs. Rebuilt bundle `dist/index.js`.
+- **Commands run with results**:
+  - `pnpm lint`: eslint passed with 0 errors (success)
+  - `pnpm typecheck`: tsc --noEmit passed cleanly (success)
+  - `pnpm test`: vitest passed all 24 tests (success)
+  - `pnpm build`: rebuilt dist/index.js bundle (success)
+  - `node dist/index.js`: executed bundle cleanly (success)
+- **Open issues**: None
