@@ -54,3 +54,12 @@
   - `pnpm build`: rebuilt dist/index.js bundle (success)
   - `node dist/index.js`: executed bundle cleanly (success)
 - **Open issues**: None
+
+## 2026-10-29 · Step 06
+- **What was built**: Implemented `src/issue-mode.ts` (`runIssueMode`) accepting dependency injection (`deps = { core, context, octokit }`). Validates issue payload presence; executes `runIssueLint` from `waveforge-stellar`; manages sticky issue comments using `<!-- waveforge -->` marker, `formatMarkdown(report)`, suggested complexity, and waveforge version footer with pagination; sets action outputs (`score`, `suggested-complexity`, `report-json`); and enforces `fail-on-low-score` threshold check. Updated `src/index.ts` to call `runIssueMode`. Added comprehensive unit tests in `src/issue-mode.test.ts` with mocked Octokit covering creation, update (no duplicate), page 2 pagination, outputs, failure rule, and verified secret token never appears in logs. Rebuilt `dist/index.js`.
+- **Commands run with results**:
+  - `pnpm lint`: eslint passed with 0 errors (success)
+  - `pnpm typecheck`: tsc --noEmit passed cleanly (success)
+  - `pnpm test`: vitest passed all 32 tests (success)
+  - `pnpm build`: rebuilt dist/index.js bundle (success)
+- **Open issues**: None
