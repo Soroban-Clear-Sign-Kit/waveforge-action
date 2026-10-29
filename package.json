@@ -1,0 +1,30 @@
+{
+  "name": "waveforge-action",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@actions/core": "3.0.1",
+    "@actions/github": "9.1.1",
+    "waveforge-stellar": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "eslint": "10.13.0",
+    "tsup": "9.0.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5",
+    "yaml": "2.9.1"
+  }
+}
