@@ -89508,6 +89508,37 @@ async function r10Check(root, _options) {
 r10Check.id = "R10";
 r10Check.title = "Secret Key and Environment Safety";
 r10Check.run = (root = ".") => r10Check(root);
+var repoChecks = [
+  r1Check,
+  r2Check,
+  r3Check,
+  r4Check,
+  r5Check,
+  r6Check,
+  r7Check,
+  r8Check,
+  r9Check,
+  r10Check
+];
+async function runRepoChecks(repoPath, options = {}) {
+  const results = [];
+  const currentOptions = { ...options };
+  for (const check of repoChecks) {
+    const result = typeof check === "function" ? await check(repoPath, currentOptions) : await check.run(repoPath, currentOptions);
+    results.push(result);
+    if (result.id === "R7" && currentOptions.sorobanCratesFound === void 0) {
+      currentOptions.sorobanCratesFound = result.status !== "skipped";
+    }
+  }
+  return {
+    kind: "repo",
+    target: repoPath,
+    score: score(results),
+    results,
+    summary: summarizeResults(results),
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
 function parseIssueMarkdown(markdown, options) {
   const lines = markdown.split(/\r?\n/);
   let titleFromFirstHeading = null;
@@ -90000,10 +90031,71 @@ async function runIssueMode(inputs, deps) {
   return report;
 }
 
-// src/index.ts
-async function runRepoMode(inputs) {
-  info(`Running repo mode (network: ${inputs.network})`);
+// src/repo-mode.ts
+function parseFileLine(evidenceStr) {
+  const match = /^(.*?):(\d+)(?::\d+)?$/.exec(evidenceStr.trim());
+  if (match && match[1] && match[2]) {
+    const lineNum = Number.parseInt(match[2], 10);
+    if (!Number.isNaN(lineNum)) {
+      return {
+        file: match[1],
+        line: lineNum
+      };
+    }
+  }
+  return null;
 }
+async function runRepoMode(inputs, deps) {
+  const actualCore = deps?.core ?? core_exports;
+  const root = deps?.workspaceRoot ?? process.env.GITHUB_WORKSPACE;
+  if (!root) {
+    actualCore.setFailed(
+      "GITHUB_WORKSPACE environment variable is missing. Repository checks require a checked-out workspace."
+    );
+    return void 0;
+  }
+  const checkFn = deps?.runRepoChecks ?? runRepoChecks;
+  const report = await checkFn(root, {
+    network: inputs.network,
+    rpcUrl: inputs.rpcUrl,
+    offline: inputs.offline
+  });
+  await actualCore.summary.addRaw(formatMarkdown(report), true).write();
+  for (const result of report.results) {
+    if (result.status === "fail" || result.status === "warn") {
+      if (result.evidence && result.evidence.length > 0) {
+        for (const ev of result.evidence) {
+          const parsed = parseFileLine(ev);
+          if (parsed) {
+            const annotation = {
+              file: parsed.file,
+              startLine: parsed.line,
+              title: `${result.id}: ${result.title}`
+            };
+            if (result.status === "fail") {
+              actualCore.error(result.message, annotation);
+            } else {
+              actualCore.warning(result.message, annotation);
+            }
+          }
+        }
+      }
+    }
+  }
+  actualCore.setOutput("score", String(report.score));
+  actualCore.setOutput("report-json", formatJson(report));
+  const hasFail = report.results.some((r) => r.status === "fail");
+  if (hasFail) {
+    actualCore.setFailed("One or more repository checks failed.");
+  } else if (inputs.failOnLowScore && report.score < inputs.minScore) {
+    actualCore.setFailed(
+      `Repository readiness score ${report.score} is below the minimum threshold ${inputs.minScore}.`
+    );
+  }
+  return report;
+}
+
+// src/index.ts
 async function run() {
   const inputs = readInputs();
   if (!inputs) {
@@ -90017,13 +90109,12 @@ async function run() {
       octokit ? { core: core_exports, context: context2, octokit } : void 0
     );
   } else {
-    await runRepoMode(inputs);
+    await runRepoMode(inputs, { core: core_exports });
   }
 }
 void run();
 export {
-  run,
-  runRepoMode
+  run
 };
 /*! Bundled license information:
 
