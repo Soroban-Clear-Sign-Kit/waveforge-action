@@ -1,0 +1,29 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 12,
+    "title": "Add multi-signer threshold verification to escrow contract",
+    "state": "open",
+    "html_url": "https://github.com/Soroban-Clear-Sign-Kit/waveforge-action/issues/12",
+    "user": {
+      "login": "contributor-example",
+      "type": "User"
+    },
+    "labels": [
+      {
+        "name": "enhancement"
+      }
+    ],
+    "body": "## Description\nImplement multi-signer threshold verification for batch payouts in the Soroban escrow smart contract so releases require quorum approval before transferring tokens.\n\n## Requirements and context\n- Store signer addresses and threshold weights in persistent contract storage.\n- Enforce caller authorization on every state transition with `require_auth`.\n- Reject duplicate signer entries and zero-threshold configurations.\n\n## Done when\n- [ ] Multi-signer storage and quorum verification implemented in `contracts/escrow/src/lib.rs`\n- [ ] Unit and integration tests covering threshold edge cases pass via `cargo test`\n- [ ] Contract compiles cleanly with `stellar contract build` and passes Wasm size check\n\n## Files to touch\n- `contracts/escrow/src/lib.rs`\n- `contracts/escrow/src/test.rs`\n\n## Suggested execution\n1. Define the signer configuration types and contract storage keys.\n2. Implement `require_auth` verification across the configured signer set.\n3. Add unit tests in `contracts/escrow/src/test.rs` for valid quorum, duplicate signers, and unauthorized callers.\n4. Run `cargo test` and `stellar contract build` to verify contract behavior and Wasm size.\n\nComplexity: High"
+  },
+  "repository": {
+    "name": "waveforge-action",
+    "full_name": "Soroban-Clear-Sign-Kit/waveforge-action",
+    "owner": {
+      "login": "Soroban-Clear-Sign-Kit"
+    }
+  },
+  "sender": {
+    "login": "contributor-example"
+  }
+}
