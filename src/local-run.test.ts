@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import type * as core from "@actions/core";
 import { runIssueMode, type IssueContextPayload, type OctokitLike } from "./issue-mode.js";
 
@@ -112,27 +113,44 @@ describe("scripts/local-run.mjs", () => {
   });
 
   it("forwards hyphenated INPUT_* flags and propagates failure exit code", () => {
-    const res = spawnSync(
-      process.execPath,
-      [
-        localRunScript,
-        "--mode",
-        "repo",
-        "--offline",
-        "true",
-        "--min-score",
-        "100",
-        "--fail-on-low-score",
-        "true",
-        repoRoot,
-      ],
-      {
-        cwd: repoRoot,
-        encoding: "utf8",
-      },
+    const tempEventDir = mkdtempSync(join(tmpdir(), "waveforge-low-score-"));
+    const lowScoreEventPath = join(tempEventDir, "low-issue.json");
+    writeFileSync(
+      lowScoreEventPath,
+      JSON.stringify({
+        action: "opened",
+        issue: {
+          number: 1,
+          title: "Short issue",
+          body: "## Description\nBrief context.\n\n## Done when\n- [ ] Item 1\n- [ ] Item 2",
+        },
+      }),
+      "utf8",
     );
 
-    expect(res.status).toBe(1);
-    expect(res.stdout).toContain("below the minimum threshold 100");
+    try {
+      const res = spawnSync(
+        process.execPath,
+        [
+          localRunScript,
+          "--mode",
+          "issue",
+          "--min-score",
+          "100",
+          "--fail-on-low-score",
+          "true",
+          lowScoreEventPath,
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+        },
+      );
+
+      expect(res.status).toBe(1);
+      expect(res.stdout).toContain("below the minimum threshold 100");
+    } finally {
+      rmSync(tempEventDir, { recursive: true, force: true });
+    }
   });
 });
