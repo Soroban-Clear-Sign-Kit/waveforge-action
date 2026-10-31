@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type * as core from "@actions/core";
@@ -6,6 +7,7 @@ import { runIssueMode, type IssueContextPayload, type OctokitLike } from "./issu
 
 const repoRoot = resolve(import.meta.dirname, "..");
 const issueEventPath = resolve(repoRoot, "examples", "events", "issue-opened.json");
+const localRunScript = resolve(repoRoot, "scripts", "local-run.mjs");
 
 describe("examples/events/issue-opened.json", () => {
   it("exists and contains a realistic GitHub issues opened payload", () => {
@@ -68,5 +70,69 @@ describe("examples/events/issue-opened.json", () => {
     expect(report?.kind).toBe("issue");
     expect(report?.score).toBeGreaterThanOrEqual(70);
     expect(mockCore.setFailed).not.toHaveBeenCalled();
+  });
+});
+
+describe("scripts/local-run.mjs", () => {
+  it("runs repo mode offline on this repository and prints the job summary", () => {
+    const res = spawnSync(
+      process.execPath,
+      [localRunScript, "--mode", "repo", "--offline", "true", repoRoot],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
+    );
+
+    expect(res.status).toBe(0);
+    expect(res.stdout).toContain("waveforge-action ready");
+    expect(res.stdout).toContain("::set-output name=score::");
+    expect(res.stdout).toContain("::set-output name=report-json::");
+    expect(res.stdout).toContain("--- GITHUB_STEP_SUMMARY ---");
+    expect(res.stdout).toContain("## WaveForge Repository Report");
+    expect(res.stdout).toContain("| SKIP | R8 |");
+  });
+
+  it("runs issue mode on example event with INPUT_COMMENT=false (no API call)", () => {
+    const res = spawnSync(
+      process.execPath,
+      [localRunScript, "--mode", "issue", issueEventPath],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
+    );
+
+    expect(res.status).toBe(0);
+    expect(res.stdout).toContain("waveforge-action ready");
+    expect(res.stdout).toContain("::set-output name=score::100");
+    expect(res.stdout).toContain("::set-output name=suggested-complexity::High");
+    expect(res.stdout).toContain("::set-output name=report-json::");
+    expect(res.stdout).toContain("--- GITHUB_STEP_SUMMARY ---");
+  });
+
+  it("forwards hyphenated INPUT_* flags and propagates failure exit code", () => {
+    const res = spawnSync(
+      process.execPath,
+      [
+        localRunScript,
+        "--mode",
+        "repo",
+        "--offline",
+        "true",
+        "--min-score",
+        "100",
+        "--fail-on-low-score",
+        "true",
+        repoRoot,
+      ],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
+    );
+
+    expect(res.status).toBe(1);
+    expect(res.stdout).toContain("below the minimum threshold 100");
   });
 });

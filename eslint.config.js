@@ -6,7 +6,11 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ["eslint.config.js", "tsup.config.ts"],
+          allowDefaultProject: [
+            "eslint.config.js",
+            "tsup.config.ts",
+            "scripts/local-run.mjs",
+          ],
         },
         tsconfigRootDir: import.meta.dirname,
       },
