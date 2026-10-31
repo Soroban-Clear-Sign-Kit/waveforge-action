@@ -287,3 +287,35 @@ describe("seed issues", () => {
     expect(trivialCount + mediumCount + highCount).toBe(9);
   });
 });
+
+describe("repository documentation audit", () => {
+  const repoRoot = resolve(import.meta.dirname, "..");
+
+  it("README.md documents every input and output from action.yml", () => {
+    const action = parse(readFileSync(resolve(repoRoot, "action.yml"), "utf8")) as {
+      inputs: Record<string, unknown>;
+      outputs: Record<string, unknown>;
+    };
+    const readme = readFileSync(resolve(repoRoot, "README.md"), "utf8");
+
+    for (const inputName of Object.keys(action.inputs)) {
+      expect(readme).toContain(`\`${inputName}\``);
+    }
+    for (const outputName of Object.keys(action.outputs)) {
+      expect(readme).toContain(`\`${outputName}\``);
+    }
+    expect(readme).toContain("https://github.com/Soroban-Clear-Sign-Kit/waveforge");
+  });
+
+  it("CONTRIBUTING.md contains Stellar Wave section and no docs contain local file:// URLs", () => {
+    const contributing = readFileSync(resolve(repoRoot, "CONTRIBUTING.md"), "utf8");
+    const security = readFileSync(resolve(repoRoot, "SECURITY.md"), "utf8");
+    const readme = readFileSync(resolve(repoRoot, "README.md"), "utf8");
+
+    expect(contributing).toContain("Stellar Wave");
+    expect(contributing).toContain("drips.network/wave");
+    expect(contributing).not.toContain("file://");
+    expect(security).not.toContain("file://");
+    expect(readme).not.toContain("file://");
+  });
+});

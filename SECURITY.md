@@ -8,7 +8,7 @@ You can report vulnerabilities by submitting a private advisory through GitHub u
 
 ## Token and Permissions
 
-This Action uses only the standard `GITHUB_TOKEN` secret provided by GitHub Actions. It does not require or accept external credentials, private keys, or third-party API keys. The Action operates under least privilege using only the permissions explicitly documented in the [README](file:///c:/Users/ADMIN/OneDrive/Documents/Drips/waveforge-action/README.md).
+This Action uses only the standard `GITHUB_TOKEN` secret provided by GitHub Actions. It does not require or accept external credentials, private keys, or third-party API keys. The Action operates under least privilege using only the permissions explicitly documented in the [README](README.md).
 
 ## Scope of Security Responsibilities
 
