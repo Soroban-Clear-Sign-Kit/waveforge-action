@@ -1,0 +1,23 @@
+name: WaveForge Issue Lint
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  issue-lint:
+    name: Lint Issue with WaveForge
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Lint issue body
+        uses: Soroban-Clear-Sign-Kit/waveforge-action@v1
+        with:
+          mode: issue
+          min-score: "70"
+          comment: "true"
+          fail-on-low-score: "false"

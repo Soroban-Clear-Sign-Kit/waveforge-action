@@ -1,0 +1,30 @@
+name: WaveForge Repository Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repo-check:
+    name: Run WaveForge Repository Checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run WaveForge repository checks
+        uses: Soroban-Clear-Sign-Kit/waveforge-action@v1
+        with:
+          mode: repo
+          min-score: "70"
+          network: testnet
+          offline: "false"
+          fail-on-low-score: "false"

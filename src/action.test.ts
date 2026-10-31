@@ -127,6 +127,52 @@ describe("self-test.yml", () => {
   });
 });
 
+describe("example workflows", () => {
+  const examplesDir = resolve(import.meta.dirname, "..", "examples");
+
+  it("parses examples/issue-lint.yml with permissions issues: write and uses Soroban-Clear-Sign-Kit/waveforge-action@v1", () => {
+    const raw = readFileSync(resolve(examplesDir, "issue-lint.yml"), "utf8");
+    const wf = parse(raw) as Record<string, unknown>;
+    expect(wf).toBeDefined();
+
+    const jobs = wf["jobs"] as Record<string, Record<string, unknown>>;
+    const job = jobs["issue-lint"];
+    expect(job).toBeDefined();
+
+    const perms = (job?.["permissions"] ?? wf["permissions"]) as Record<string, unknown>;
+    expect(perms?.["issues"]).toBe("write");
+
+    const steps = job?.["steps"] as Array<Record<string, unknown>>;
+    const actionStep = steps.find(
+      (s) => s["uses"] === "Soroban-Clear-Sign-Kit/waveforge-action@v1",
+    );
+    expect(actionStep).toBeDefined();
+    const withBlock = actionStep?.["with"] as Record<string, unknown>;
+    expect(withBlock?.["mode"]).toBe("issue");
+  });
+
+  it("parses examples/repo-check.yml with permissions contents: read and uses Soroban-Clear-Sign-Kit/waveforge-action@v1", () => {
+    const raw = readFileSync(resolve(examplesDir, "repo-check.yml"), "utf8");
+    const wf = parse(raw) as Record<string, unknown>;
+    expect(wf).toBeDefined();
+
+    const jobs = wf["jobs"] as Record<string, Record<string, unknown>>;
+    const job = jobs["repo-check"];
+    expect(job).toBeDefined();
+
+    const perms = (job?.["permissions"] ?? wf["permissions"]) as Record<string, unknown>;
+    expect(perms?.["contents"]).toBe("read");
+
+    const steps = job?.["steps"] as Array<Record<string, unknown>>;
+    const actionStep = steps.find(
+      (s) => s["uses"] === "Soroban-Clear-Sign-Kit/waveforge-action@v1",
+    );
+    expect(actionStep).toBeDefined();
+    const withBlock = actionStep?.["with"] as Record<string, unknown>;
+    expect(withBlock?.["mode"]).toBe("repo");
+  });
+});
+
 describe("issue forms & templates", () => {
   const templatesDir = resolve(import.meta.dirname, "..", ".github", "ISSUE_TEMPLATE");
 
