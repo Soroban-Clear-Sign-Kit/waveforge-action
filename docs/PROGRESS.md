@@ -72,3 +72,14 @@
   - `pnpm test`: vitest passed all 41 tests (success)
   - `pnpm build`: rebuilt dist/index.js bundle (success)
 - **Open issues**: None
+
+## 2026-10-31 · Step 08
+- **What was built**: Created `examples/events/issue-opened.json` with a realistic GitHub `issues` (`opened`) webhook payload for a Soroban escrow threshold issue. Implemented `scripts/local-run.mjs` (plain Node, zero new dependencies) mapping CLI flags to `INPUT_*` environment variables, setting `GITHUB_WORKSPACE`, `GITHUB_EVENT_PATH`, and a temporary `GITHUB_STEP_SUMMARY` file, forcing `INPUT_COMMENT=false` in issue mode so no API call is made, running `node dist/index.js`, and printing the summary file at the end. Added `scripts/local-run.mjs` to `eslint.config.js` `allowDefaultProject` for strict linting and added integration tests in `src/local-run.test.ts`. Logged CLI argument mapping decision in `docs/DECISIONS.md`.
+- **Commands run with results**:
+  - `node scripts/local-run.mjs --mode repo --offline true .`: ran repo checks offline (score 94%, R8 skipped) and printed `GITHUB_STEP_SUMMARY` (success)
+  - `node scripts/local-run.mjs --mode issue examples/events/issue-opened.json`: ran issue lint with `INPUT_COMMENT=false` (score 100%, suggested complexity High) and printed summary status (success)
+  - `pnpm lint`: eslint passed with 0 errors (success)
+  - `pnpm typecheck`: tsc --noEmit passed cleanly (success)
+  - `pnpm test`: vitest passed all 46 tests across 5 test files (success)
+  - `pnpm build`: rebuilt dist/index.js cleanly with zero diff (success)
+- **Open issues**: None
