@@ -96,6 +96,37 @@ describe("ci.yml", () => {
   });
 });
 
+describe("self-test.yml", () => {
+  const selfTestPath = resolve(import.meta.dirname, "..", ".github", "workflows", "self-test.yml");
+  const raw = readFileSync(selfTestPath, "utf8");
+  const wf = parse(raw) as Record<string, unknown>;
+
+  it("parses as valid YAML and triggers on pull_request and workflow_dispatch", () => {
+    expect(wf).toBeDefined();
+    const on = wf["on"] as Record<string, unknown>;
+    expect(on).toBeDefined();
+    expect("pull_request" in on).toBe(true);
+    expect("workflow_dispatch" in on).toBe(true);
+  });
+
+  it("runs ./ with mode repo, offline true, and permissions contents: read", () => {
+    const topPerms = wf["permissions"] as Record<string, unknown> | undefined;
+    const jobs = wf["jobs"] as Record<string, Record<string, unknown>>;
+    const job = jobs["self-test"];
+    expect(job).toBeDefined();
+
+    const jobPerms = (job?.["permissions"] ?? topPerms) as Record<string, unknown>;
+    expect(jobPerms?.["contents"]).toBe("read");
+
+    const steps = job?.["steps"] as Array<Record<string, unknown>>;
+    const selfStep = steps.find((s) => s["uses"] === "./");
+    expect(selfStep).toBeDefined();
+    const withBlock = selfStep?.["with"] as Record<string, unknown>;
+    expect(withBlock?.["mode"]).toBe("repo");
+    expect(String(withBlock?.["offline"])).toBe("true");
+  });
+});
+
 describe("issue forms & templates", () => {
   const templatesDir = resolve(import.meta.dirname, "..", ".github", "ISSUE_TEMPLATE");
 
