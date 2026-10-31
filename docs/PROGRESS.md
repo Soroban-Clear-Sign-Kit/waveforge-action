@@ -83,3 +83,12 @@
   - `pnpm test`: vitest passed all 46 tests across 5 test files (success)
   - `pnpm build`: rebuilt dist/index.js cleanly with zero diff (success)
 - **Open issues**: None
+
+## 2026-10-31 · Step 09
+- **What was built**: Added `.github/workflows/self-test.yml` triggering on `pull_request` and `workflow_dispatch` (`uses: ./` with `mode: repo`, `offline: "true"`, `permissions: contents: read`). Created copy-paste example workflows `examples/issue-lint.yml` (`permissions: issues: write`, `uses: Soroban-Clear-Sign-Kit/waveforge-action@v1`) and `examples/repo-check.yml` (`permissions: contents: read`, `uses: Soroban-Clear-Sign-Kit/waveforge-action@v1`) and added YAML validation tests in `src/action.test.ts`. Updated `README.md` with two-sentence overview, inline quickstart workflows, inputs and outputs tables, permissions per mode, sample issue comment and job summary outputs, link to `https://github.com/Soroban-Clear-Sign-Kit/waveforge`, and versioning guidance. Added `CHANGELOG.md` (`0.1.0`) and bumped `package.json` version to `0.1.0`.
+- **Commands run with results**:
+  - `pnpm lint`: eslint passed with 0 errors (success)
+  - `pnpm typecheck`: tsc --noEmit passed cleanly (success)
+  - `pnpm test`: vitest passed all 50 tests across 5 test files including all YAML validations (success)
+  - `pnpm build`: rebuilt dist/index.js cleanly with zero diff (success)
+- **Open issues**: None
