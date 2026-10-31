@@ -63,3 +63,12 @@
   - `pnpm test`: vitest passed all 32 tests (success)
   - `pnpm build`: rebuilt dist/index.js bundle (success)
 - **Open issues**: None
+
+## 2026-10-29 · Step 07
+- **What was built**: Implemented `src/repo-mode.ts` (`runRepoMode`) resolving workspace root via `process.env.GITHUB_WORKSPACE` (with clear error when missing) and executing `runRepoChecks` from `waveforge-stellar`. Writes formatted job summary to `core.summary`. Emits GitHub annotations (`core.error` or `core.warning`) with parsed `file:line` locations for failure and warning results. Sets `score` and `report-json` outputs, and enforces failure if any check fails or if score is below `min-score` when `fail-on-low-score` is active. Updated `src/index.ts` to route repo mode. Added tests in `src/repo-mode.test.ts` covering missing workspace handling, job summary generation, offline check pass-through, annotation parsing, and failure thresholds. Rebuilt `dist/index.js`.
+- **Commands run with results**:
+  - `pnpm lint`: eslint passed with 0 errors (success)
+  - `pnpm typecheck`: tsc --noEmit passed cleanly (success)
+  - `pnpm test`: vitest passed all 41 tests (success)
+  - `pnpm build`: rebuilt dist/index.js bundle (success)
+- **Open issues**: None
