@@ -1,11 +1,8 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { readInputs, type ActionInputs } from "./inputs.js";
+import { readInputs } from "./inputs.js";
 import { runIssueMode } from "./issue-mode.js";
-
-export async function runRepoMode(inputs: ActionInputs): Promise<void> {
-  core.info(`Running repo mode (network: ${inputs.network})`);
-}
+import { runRepoMode } from "./repo-mode.js";
 
 export async function run(): Promise<void> {
   const inputs = readInputs();
@@ -24,7 +21,7 @@ export async function run(): Promise<void> {
       octokit ? { core, context: github.context, octokit } : undefined,
     );
   } else {
-    await runRepoMode(inputs);
+    await runRepoMode(inputs, { core });
   }
 }
 
