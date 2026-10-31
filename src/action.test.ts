@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import { parse } from "yaml";
 import { resolve } from "node:path";
+import { runIssueLint } from "waveforge-stellar";
 
 describe("action.yml", () => {
   const actionPath = resolve(import.meta.dirname, "..", "action.yml");
@@ -236,5 +237,53 @@ describe("issue forms & templates", () => {
     expect(raw).toContain("Summary");
     expect(raw).toContain("Test Evidence");
     expect(raw).toContain("Checklist");
+  });
+});
+
+describe("seed issues", () => {
+  const docsDir = resolve(import.meta.dirname, "..", "docs");
+  const seedDir = resolve(docsDir, "seed-issues");
+  const issueNumbers = ["01", "02", "03", "04", "05", "06", "07", "08", "09"];
+
+  it("lists all 9 seed issues and gh issue create commands in docs/seed-issues.md", () => {
+    const indexRaw = readFileSync(resolve(docsDir, "seed-issues.md"), "utf8");
+    for (const num of issueNumbers) {
+      expect(indexRaw).toContain(`docs/seed-issues/${num}.md`);
+      expect(indexRaw).toContain(`--body-file docs/seed-issues/${num}.md --label`);
+    }
+  });
+
+  it("validates all 9 seed issues pass runIssueLint and meet the required complexity mix", async () => {
+    let trivialCount = 0;
+    let mediumCount = 0;
+    let highCount = 0;
+
+    for (const num of issueNumbers) {
+      const filePath = resolve(seedDir, `${num}.md`);
+      expect(existsSync(filePath)).toBe(true);
+      const body = readFileSync(filePath, "utf8");
+
+      expect(body).toContain("## Context");
+      expect(body).toContain("## Done when");
+      expect(body).toContain("## Files to touch");
+      expect(body).toContain("Complexity:");
+      expect(body).toContain("Labels:");
+
+      const report = await runIssueLint(body);
+      expect(report.score).toBe(100);
+
+      if (body.includes("Complexity: Trivial (100)")) {
+        trivialCount++;
+      } else if (body.includes("Complexity: Medium (150)")) {
+        mediumCount++;
+      } else if (body.includes("Complexity: High (200)")) {
+        highCount++;
+      }
+    }
+
+    expect(trivialCount).toBeGreaterThanOrEqual(3);
+    expect(mediumCount).toBeGreaterThanOrEqual(3);
+    expect(highCount).toBeLessThanOrEqual(3);
+    expect(trivialCount + mediumCount + highCount).toBe(9);
   });
 });
